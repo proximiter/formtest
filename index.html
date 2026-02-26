@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Proximiter TEST</title>
+</head>
+
+<body style="background:#111;color:white;font-family:Arial;text-align:center;padding-top:100px;">
+
+<h1>Proximiter TEST FORM</h1>
+
+<form id="form">
+
+<input type="email" name="email" placeholder="Email" required><br><br>
+<input type="text" name="steamid" placeholder="SteamID64" required><br><br>
+<input type="text" name="discord" placeholder="Discord" required><br><br>
+
+<input type="hidden" name="environment" value="TEST">
+
+<button type="submit">Send Test</button>
+
+</form>
+
+<p id="msg"></p>
+
+<script>
+const WORKER_URL = "https://hidden-moon-7f9f.peter-proximiter.workers.dev";
+const form = document.getElementById("form");
+const msg = document.getElementById("msg");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const formData = new FormData(form);
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      body: formData
+    });
+
+    const json = await res.json();
+    msg.innerText = json.success ? "TEST SENT ✅" : "ERROR ❌";
+  } catch {
+    msg.innerText = "FAILED ❌";
+  }
+});
+</script>
+
+</body>
+</html>
