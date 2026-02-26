@@ -28,7 +28,7 @@ p#msg { font-size:13px; margin-top:10px; }
 </div>
 
 <script>
-const WORKER_URL = "https://proximiter-test.peter-proximiter.workers.dev/"; // <- URL Twojego Cloudflare Worker
+const WORKER_URL = "https://proximiter-test.peter-proximiter.workers.dev/L"; // <- URL Twojego Cloudflare Worker
 
 const form = document.getElementById('testForm');
 const msg = document.getElementById('msg');
@@ -37,10 +37,9 @@ form.addEventListener('submit', async e => {
   e.preventDefault();
 
   const formData = new FormData(form);
-  const data = Object.fromEntries(formData.entries());
 
   // Walidacja SteamID64
-  if (!/^7656119\d{10}$/.test(data.steamid)) {
+  if (!/^7656119\d{10}$/.test(formData.get('steamid'))) {
     msg.style.color = '#ff4d4d';
     msg.textContent = "Invalid SteamID64!";
     return;
