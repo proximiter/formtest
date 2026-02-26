@@ -1,50 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Proximiter TEST</title>
+<title>Proximiter Drift TEST FORM</title>
+<style>
+body { background:#111; color:white; font-family:Arial,sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+.container { background:#1e1e1e; padding:30px; border-radius:12px; width:420px; text-align:center; }
+input, button { width:100%; padding:10px; margin:5px 0; border-radius:6px; border:none; font-size:14px; }
+button { background:#ff4d4d; color:white; font-weight:bold; cursor:pointer; }
+input[type=checkbox] { width:auto; margin-right:8px; }
+.hint { font-size:12px; color:#bbb; margin-bottom:10px; text-align:left; }
+</style>
 </head>
+<body>
+<div class="container">
+<h2>TEST FORM</h2>
+<form id="testForm">
+  <div class="hint">Email:</div>
+  <input type="email" name="email" placeholder="Email" required>
 
-<body style="background:#111;color:white;font-family:Arial;text-align:center;padding-top:100px;">
+  <div class="hint">SteamID64:</div>
+  <input type="text" name="steamid" placeholder="7656119XXXXXXXXXX" required>
 
-<h1>Proximiter TEST FORM</h1>
+  <div class="hint">Discord:</div>
+  <input type="text" name="discord" placeholder="UserName#1234" required>
 
-<form id="form">
+  <label><input type="checkbox" name="confirm" required> I confirm information is correct</label>
 
-<input type="email" name="email" placeholder="Email" required><br><br>
-<input type="text" name="steamid" placeholder="SteamID64" required><br><br>
-<input type="text" name="discord" placeholder="Discord" required><br><br>
+  <input type="hidden" name="environment" value="TEST">
 
-<input type="hidden" name="environment" value="TEST">
-
-<button type="submit">Send Test</button>
-
+  <button type="submit">Send Test</button>
 </form>
-
 <p id="msg"></p>
+</div>
 
 <script>
-const WORKER_URL = "https://hidden-moon-7f9f.peter-proximiter.workers.dev";
-const form = document.getElementById("form");
-const msg = document.getElementById("msg");
+const WORKER_URL = 'TU_WKLEJ_LINK_DO_CLOUDFLARE_WORKER';
+const form = document.getElementById('testForm');
+const msg = document.getElementById('msg');
 
-form.addEventListener("submit", async (e) => {
+form.addEventListener('submit', async e => {
   e.preventDefault();
   const formData = new FormData(form);
+  
+  const data = {
+    email: formData.get('email'),
+    steamid: formData.get('steamid'),
+    discord: formData.get('discord'),
+    confirm: formData.get('confirm') ? 'Yes' : 'No',
+    environment: formData.get('environment')
+  };
+
+  // 🔹 Walidacja SteamID64 po stronie klienta
+  if (!/^7656119\d{10}$/.test(data.steamid)) {
+    msg.style.color = '#ff4d4d';
+    msg.textContent = 'Invalid SteamID64 format!';
+    return;
+  }
 
   try {
     const res = await fetch(WORKER_URL, {
-      method: "POST",
-      body: formData
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
     });
-
     const json = await res.json();
-    msg.innerText = json.success ? "TEST SENT ✅" : "ERROR ❌";
-  } catch {
-    msg.innerText = "FAILED ❌";
+    if (json.success) {
+      msg.style.color = '#4fff4f';
+      msg.textContent = 'Form submitted successfully!';
+      form.reset();
+    } else {
+      msg.style.color = '#ff4d4d';
+      msg.textContent = json.error || 'Error submitting form.';
+    }
+  } catch(err) {
+    msg.style.color = '#ff4d4d';
+    msg.textContent = 'Failed to submit form.';
   }
 });
 </script>
-
 </body>
 </html>
