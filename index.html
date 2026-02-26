@@ -1,19 +1,41 @@
-<form id="testForm">
-  <input type="email" name="email" placeholder="Email" required><br>
-  <input type="text" name="steamid" placeholder="SteamID64" required><br>
-  <input type="text" name="discord" placeholder="Discord" required><br>
-  <label><input type="checkbox" name="confirm" required> Confirm info</label><br>
-  <button type="submit">Send</button>
-</form>
-<p id="msg"></p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Proximiter Drift Test Form</title>
+<style>
+body { background:#0f0f0f; color:white; font-family:Arial,sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
+.container { background:#1a1a1a; padding:30px; border-radius:12px; width:400px; text-align:center; }
+input, button { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:none; font-size:14px; }
+input { background:#2a2a2a; color:white; }
+button { background:#ff2e2e; color:white; font-weight:bold; cursor:pointer; transition:0.2s; }
+button:hover { background:#ff4d4d; }
+label { font-size:13px; display:flex; align-items:center; margin-bottom:15px; }
+p#msg { font-size:13px; margin-top:10px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Proximiter Drift Test Form</h2>
+  <form id="testForm">
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="text" name="steamid" placeholder="SteamID64" required>
+    <input type="text" name="discord" placeholder="Discord" required>
+    <label><input type="checkbox" name="confirm" required> Confirm info is correct</label>
+    <button type="submit">Send Test</button>
+  </form>
+  <p id="msg"></p>
+</div>
 
 <script>
-const WORKER_URL = "proximiter-test.peter-proximiter.workers.dev";
+const WORKER_URL = "https://proximiter-test.peter-proximiter.workers.dev/"; // <- URL testowego Workera
+
 const form = document.getElementById('testForm');
 const msg = document.getElementById('msg');
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
+
   const formData = new FormData(form);
   const data = {
     email: formData.get('email'),
@@ -22,6 +44,7 @@ form.addEventListener('submit', async e => {
     confirm: formData.get('confirm') ? true : false
   };
 
+  // walidacja SteamID64
   if (!/^7656119\d{10}$/.test(data.steamid)) {
     msg.style.color = '#ff4d4d';
     msg.textContent = "Invalid SteamID64!";
@@ -30,17 +53,25 @@ form.addEventListener('submit', async e => {
 
   try {
     const res = await fetch(WORKER_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
+
     const json = await res.json();
-    msg.style.color = json.success ? '#4fff4f' : '#ff4d4d';
-    msg.textContent = json.success ? "Form submitted!" : json.error;
-    if(json.success) form.reset();
+    if (json.success) {
+      msg.style.color = '#4fff4f';
+      msg.textContent = "Form submitted successfully!";
+      form.reset();
+    } else {
+      msg.style.color = '#ff4d4d';
+      msg.textContent = json.error || "Error submitting form.";
+    }
   } catch(err) {
     msg.style.color = '#ff4d4d';
     msg.textContent = "Failed to submit form.";
   }
 });
 </script>
+</body>
+</html>
