@@ -28,7 +28,7 @@ p#msg { font-size:13px; margin-top:10px; }
 </div>
 
 <script>
-const WORKER_URL = "https://proximiter-test.peter-proximiter.workers.dev/"; // <- URL testowego Workera
+const WORKER_URL = "https://proximiter-test.peter-proximiter.workers.dev/"; // <- link z Cloudflare Worker
 
 const form = document.getElementById('testForm');
 const msg = document.getElementById('msg');
@@ -53,8 +53,8 @@ form.addEventListener('submit', async e => {
 
   try {
     const res = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify(data)
     });
 
