@@ -28,7 +28,7 @@ p#msg { font-size:13px; margin-top:10px; }
 </div>
 
 <script>
-const WORKER_URL = "https://proximiter-test.peter-proximiter.workers.dev/"; // <- link z Cloudflare Worker
+const WORKER_URL = "https://proximiter-test.peter-proximiter.workers.dev/"; // <- URL Twojego Cloudflare Worker
 
 const form = document.getElementById('testForm');
 const msg = document.getElementById('msg');
@@ -37,14 +37,9 @@ form.addEventListener('submit', async e => {
   e.preventDefault();
 
   const formData = new FormData(form);
-  const data = {
-    email: formData.get('email'),
-    steamid: formData.get('steamid'),
-    discord: formData.get('discord'),
-    confirm: formData.get('confirm') ? true : false
-  };
+  const data = Object.fromEntries(formData.entries());
 
-  // walidacja SteamID64
+  // Walidacja SteamID64
   if (!/^7656119\d{10}$/.test(data.steamid)) {
     msg.style.color = '#ff4d4d';
     msg.textContent = "Invalid SteamID64!";
@@ -52,12 +47,7 @@ form.addEventListener('submit', async e => {
   }
 
   try {
-    const res = await fetch(WORKER_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(data)
-    });
-
+    const res = await fetch(WORKER_URL, { method:'POST', body: formData });
     const json = await res.json();
     if (json.success) {
       msg.style.color = '#4fff4f';
